@@ -1,2 +1,2 @@
-# deep_learning_mit_course
+# Space invaders with pytorch
 Repository to MIT COURSE
