@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "space-invaders-pytorch"
+version = "0.1.0"
+description = ""
+authors = ["Vinícius José Pierri Nogueira <vinijosenog@hotmail.com>"]
+readme = "README.md"
+packages = [{include = "space_invaders_pytorch"}]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+torch = "^2.1.0"
+gymnasium = {extras = ["accept-rom-license", "atari"], version = "^0.29.1"}
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.9.1"
+pylint = "^3.0.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
