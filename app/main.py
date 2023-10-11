@@ -37,7 +37,7 @@ def load_game(render_mode: str, hidden_layer: int = 50) -> AtariAI:
 
 
 def main():
-    epochs = 50
+    epochs = 20
     ai, wrapped_env = load_game(render_mode=None)
     ai.load()
     ai.train(epochs=epochs, env=wrapped_env)

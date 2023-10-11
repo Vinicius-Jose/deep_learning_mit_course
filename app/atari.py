@@ -42,7 +42,7 @@ class AtariAI:
         self.save_path = self.save_dir + f"{self.save_file_name}.chkpt"
         self.module = module
         self.optimizer: torch.optim.Optimizer = (
-            optimizer if optimizer else torch.optim.SGD(module.parameters(), lr=0.01)
+            optimizer if optimizer else torch.optim.AdamW(module.parameters(), lr=0.01)
         )
         self.criterion: torch.nn.MSELoss = (
             criterion if criterion else torch.nn.MSELoss()
@@ -55,7 +55,7 @@ class AtariAI:
         for i in range(epochs):
             done = False
             state, info = env.reset()
-            reward = 0
+            reward_vector = []
             score = 0
             while not done:
                 state = torch.tensor(np.array([state]), dtype=torch.float32).view(
@@ -74,6 +74,7 @@ class AtariAI:
                 self.optimizer.step()
                 state = next_state
                 score += reward
+                reward_vector.append(reward)
                 done = info.get("lives") == 0
             logger.debug(f" Episode: {i} Score: {score} ")
         self.save()
@@ -89,6 +90,7 @@ class AtariAI:
             state = torch.tensor(np.array([state]), dtype=torch.float32).view(
                 -1, self.data_size
             )
+            state = state.add(score)
             action_tensor = self.module(state)
             action = torch.argmax(action_tensor).item()
             state, reward, n_state, done, info = env.step(action)
@@ -102,7 +104,7 @@ class AtariAI:
             state_dict = torch.load(self.save_path)
             self.module.load_state_dict(state_dict)
         except Exception:
-            logger.debug("Nao há arquivo para carregar")
+            logger.debug("There is no file to be loaded")
 
     def save(self) -> None:
         torch.save(
