@@ -13,6 +13,12 @@ class AtariGame:
         self.env = gym.make(self.game, render_mode=render_mode)
         return self.env
 
+    def get_wrapped_env(self, deque_size=50) -> gym.wrappers.RecordEpisodeStatistics:
+        wrapped_env = gym.wrappers.RecordEpisodeStatistics(
+            self.env, deque_size=deque_size
+        )
+        return wrapped_env
+
 
 class AtariAI:
     def __init__(
@@ -40,14 +46,17 @@ class AtariAI:
         for _ in range(epochs):
             state = torch.tensor(np.array([state]), dtype=torch.float32)
             self.optimizer.zero_grad()
-            action = self.module(state, model="online")
-            action = action.topk(1)[1][0].item()
+            action_tensor = self.module(state.float(), model="online")
+            action = torch.argmax(action_tensor[0][0][0]).item()
             next_state, reward, n_state, done, info = env.step(action)
             target = self.module(state, model="target")
-            loss = self.criterion(next_state, target)
+
+            loss = self.criterion(action_tensor, target)
+
             loss.backward()
             self.optimizer.step()
             state = next_state
+
         self.save()
         env.close()
 
