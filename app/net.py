@@ -7,14 +7,12 @@ class NeuralNetwork(nn.Module):
         self,
         sequential=None,
         input_size=0,
-        data_size=0,
         hidden_layers=0,
         output_size=0,
     ) -> None:
         super(NeuralNetwork, self).__init__()
         if not sequential:
             self.sequential = nn.Sequential(
-                nn.Flatten(end_dim=1),
                 nn.Linear(
                     in_features=input_size,
                     out_features=hidden_layers,
