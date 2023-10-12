@@ -55,17 +55,19 @@ class AtariAI:
         for i in range(epochs):
             done = False
             state, info = env.reset()
-            reward_vector = []
+            reward_vector = [500]
             score = 0
             while not done:
+                self.optimizer.zero_grad()
+
                 state = torch.tensor(np.array([state]), dtype=torch.float32).view(
                     -1, self.data_size
                 )
                 state = state.add(score)
-                self.optimizer.zero_grad()
-                action_tensor = self.module(state.float(), model="online")
+
+                action_tensor = self.module(state)
                 action = torch.argmax(action_tensor).item()
-                next_state, reward, n_state, done, info = env.step(action)
+                next_state, reward, _, done, info = env.step(action)
 
                 target = self.module(state, model="target")
                 loss = self.criterion(action_tensor, target)
@@ -103,7 +105,7 @@ class AtariAI:
         try:
             state_dict = torch.load(self.save_path)
             self.module.load_state_dict(state_dict)
-        except Exception:
+        except Exception as e:
             logger.debug("There is no file to be loaded")
 
     def save(self) -> None:

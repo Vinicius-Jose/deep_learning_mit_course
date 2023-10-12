@@ -3,6 +3,9 @@ from atari import AtariAI, AtariGame
 
 from net import NeuralNetwork
 import logging
+import torch
+
+torch.manual_seed(1)
 
 logger = logging.getLogger("ai_game")
 logger.setLevel(logging.DEBUG)
@@ -37,7 +40,7 @@ def load_game(render_mode: str, hidden_layer: int = 50) -> AtariAI:
 
 
 def main():
-    epochs = 20
+    epochs = 80
     ai, wrapped_env = load_game(render_mode=None)
     ai.load()
     ai.train(epochs=epochs, env=wrapped_env)
