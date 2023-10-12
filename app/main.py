@@ -4,6 +4,7 @@ from atari import AtariAI, AtariGame
 from net import NeuralNetwork
 import logging
 import torch
+from torch import nn
 
 torch.manual_seed(1)
 
@@ -19,8 +20,8 @@ def load_game(render_mode: str, hidden_layer: int = 50) -> AtariAI:
     game = AtariGame(GAME_NAME)
     env = game.initialize_atari_env_game(render_mode=render_mode)
     wrapped_env = game.get_wrapped_env()
-
-    shape = env.observation_space.shape
+    shape = [1, 1]
+    shape.extend(env.observation_space.shape)
     input_size = numpy.prod(shape)
 
     output_size = env.action_space.n
@@ -40,10 +41,10 @@ def load_game(render_mode: str, hidden_layer: int = 50) -> AtariAI:
 
 
 def main():
-    epochs = 80
-    ai, wrapped_env = load_game(render_mode=None)
-    ai.load()
-    ai.train(epochs=epochs, env=wrapped_env)
+    epochs = 50
+    # ai, wrapped_env = load_game(render_mode=None)
+    # ai.load()
+    # ai.train(epochs=epochs, env=wrapped_env)
 
     ai, wrapped_env = load_game(render_mode="human")
     ai.load()

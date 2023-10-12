@@ -26,7 +26,8 @@ class NeuralNetwork(nn.Module):
         else:
             self.sequential = sequential
         self.target: nn.Sequential = copy.deepcopy(self.sequential)
-        self.target = self.target.requires_grad_(False)
+        for p in self.target.parameters():
+            p.requires_grad = False
 
     def forward(self, input, model: str = "online"):
         if model == "online":

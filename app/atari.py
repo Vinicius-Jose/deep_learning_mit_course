@@ -16,8 +16,10 @@ class AtariGame:
         self.game = game
         self.env: gym.Env = None
 
-    def initialize_atari_env_game(self, render_mode="rgb_array"):
-        self.env = gym.make(self.game, render_mode=render_mode)
+    def initialize_atari_env_game(
+        self, render_mode: str = "rgb_array", obs_type: str = "grayscale"
+    ):
+        self.env = gym.make(self.game, render_mode=render_mode, obs_type=obs_type)
         return self.env
 
     def get_wrapped_env(self, deque_size=50) -> gym.wrappers.RecordEpisodeStatistics:
@@ -64,7 +66,6 @@ class AtariAI:
                     -1, self.data_size
                 )
                 state = state.add(score)
-
                 action_tensor = self.module(state)
                 action = torch.argmax(action_tensor).item()
                 next_state, reward, _, done, info = env.step(action)
@@ -79,7 +80,7 @@ class AtariAI:
                 reward_vector.append(reward)
                 done = info.get("lives") == 0
             logger.debug(f" Episode: {i} Score: {score} ")
-        self.save()
+            self.save()
         env.close()
 
     def play(self, env: gym.Env) -> int:
@@ -87,17 +88,18 @@ class AtariAI:
         done = False
         self.module.eval()
         score = 0
-        while not done:
-            env.render()
-            state = torch.tensor(np.array([state]), dtype=torch.float32).view(
-                -1, self.data_size
-            )
-            state = state.add(score)
-            action_tensor = self.module(state)
-            action = torch.argmax(action_tensor).item()
-            state, reward, n_state, done, info = env.step(action)
-            done = info.get("lives") == 0
-            score += reward
+        with torch.no_grad():
+            while not done:
+                env.render()
+                state = torch.tensor(np.array([state]), dtype=torch.float32).view(
+                    -1, self.data_size
+                )
+                state = state.add(score)
+                action_tensor = self.module(state)
+                action = torch.argmax(action_tensor).item()
+                state, reward, n_state, done, info = env.step(action)
+                done = info.get("lives") == 0
+                score += reward
         env.close()
         return info
 
